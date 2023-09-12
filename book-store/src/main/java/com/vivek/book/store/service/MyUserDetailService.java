@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 public class MyUserDetailService implements UserDetailsService , MyUserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     private final ModelMapper mapper;
@@ -28,6 +30,7 @@ public class MyUserDetailService implements UserDetailsService , MyUserService {
 
     @Override
     public User saveUser(UserDto userDto) {
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         return userRepository.save(mapper.map(userDto,User.class));
     }
 

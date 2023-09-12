@@ -25,11 +25,11 @@ public class SecurityConfig {
 
 
     @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository, ModelMapper mapper) {
-        return new MyUserDetailService(userRepository,mapper);
+    public UserDetailsService userDetailsService(UserRepository userRepository,ModelMapper modelMapper) {
+        return new MyUserDetailService(userRepository,passwordEncoder(),modelMapper);
     }
 
-    @Bean
+    @Bean("passwordEncoder")
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -45,14 +45,22 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspect) throws Exception {
-
+        System.out.printf("hello");
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers(antMatcher("/")).permitAll()
                         .requestMatchers(antMatcher("/home")).permitAll()
                         .requestMatchers(antMatcher("/user/**")).permitAll()
+                        .requestMatchers(antMatcher("/css/**")).permitAll()
+                        .requestMatchers(antMatcher("/js/**")).permitAll()
+                        .requestMatchers(antMatcher("/images/**")).permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(withDefaults());
+                .formLogin().loginPage("/user/login").permitAll()
+                .and()
+                .logout().logoutUrl("/logout").logoutSuccessUrl("/user/login?logout").permitAll()
+
+        ;
+
 
 
         return http.build();
